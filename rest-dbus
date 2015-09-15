@@ -40,7 +40,7 @@ class DBusRestResourceResponse(DBusRestResponse):
         'png': 'image/png',
         'gif': 'image/gif',
     }
-    resource_base = 'resources'
+    resource_base = '/usr/share/rest-dbus/resources'
 
     def __init__(self, name):
         (_, ext) = os.path.splitext(name)
