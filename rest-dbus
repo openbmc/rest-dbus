@@ -5,10 +5,10 @@ import BaseHTTPServer
 import SocketServer
 import json
 import os
-from xml.etree import ElementTree
+import sys
+from OpenBMCMapper import IntrospectionParser
 
 busses = {
-    'session': dbus.SessionBus,
     'system': dbus.SystemBus,
 }
 
@@ -40,7 +40,8 @@ class DBusRestResourceResponse(DBusRestResponse):
         'png': 'image/png',
         'gif': 'image/gif',
     }
-    resource_base = 'resources'
+    resource_base = os.path.join(sys.prefix, 'share',
+		    os.path.basename(__file__), 'resources')
 
     def __init__(self, name):
         (_, ext) = os.path.splitext(name)
@@ -97,35 +98,9 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         return obj
 
     def handle_service(self, bus_name):
-        objects = []
+        data = IntrospectionParser(bus_name, self.bus).introspect()
+        objects = [ { 'path': x } for x in data.iterkeys() ]
 
-        def parse_introspection_data(data):
-            tree = ElementTree.fromstring(data)
-            children = []
-            has_interfaces = False
-            for node in tree:
-                if node.tag == 'node':
-                    children.append(node.attrib['name'])
-                elif node.tag == 'interface':
-                    has_interfaces = True
-            return (has_interfaces, children)
-
-        def walk_object_tree(obj_path):
-            obj = self.get_object_or_404(bus_name, obj_path)
-
-            iface = dbus.Interface(obj, 'org.freedesktop.DBus.Introspectable')
-            data = iface.Introspect()
-            (has_interfaces, children) = parse_introspection_data(data)
-            if has_interfaces:
-                objects.append({'path': obj_path})
-            for child in children:
-                if obj_path == '/':
-                    obj_path = ''
-
-                walk_object_tree('/'.join([obj_path, child]))
-                
-
-        walk_object_tree('/')
         return DBusRestJSONResponse({
             'status': 'ok',
             'bus_name': bus_name,
