@@ -5,6 +5,7 @@ import BaseHTTPServer
 import SocketServer
 import json
 import os
+import sys
 from xml.etree import ElementTree
 
 busses = {
@@ -39,7 +40,8 @@ class DBusRestResourceResponse(DBusRestResponse):
         'png': 'image/png',
         'gif': 'image/gif',
     }
-    resource_base = 'resources'
+    resource_base = os.path.join(sys.prefix, 'share',
+		    os.path.basename(__file__), 'resources')
 
     def __init__(self, name):
         (_, ext) = os.path.splitext(name)
