@@ -6,6 +6,7 @@ import SocketServer
 import json
 import os
 import sys
+from xml.etree import ElementTree
 from OpenBMCMapper import IntrospectionParser
 
 busses = {
