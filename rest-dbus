@@ -13,17 +13,22 @@ busses = {
     'system': dbus.SystemBus,
 }
 
+
 class DBusRestException(Exception):
+
     def __init__(self, message, code=403):
         self.code = code
         super(DBusRestException, self).__init__(message)
-        
+
+
 class DBusRestResponse(object):
 
     def render(self, handler):
         raise NotImplemented()
 
+
 class DBusRestJSONResponse(DBusRestResponse):
+
     def __init__(self, data):
         self.data = data
 
@@ -32,6 +37,7 @@ class DBusRestJSONResponse(DBusRestResponse):
         handler.send_header('Content-Type', 'application/json')
         handler.end_headers()
         handler.wfile.write(json.dumps(self.data, indent=2, sort_keys=True))
+
 
 class DBusRestResourceResponse(DBusRestResponse):
     mime_map = {
@@ -42,12 +48,12 @@ class DBusRestResourceResponse(DBusRestResponse):
         'gif': 'image/gif',
     }
     resource_base = os.path.join(sys.prefix, 'share',
-		    os.path.basename(__file__), 'resources')
+                                 os.path.basename(__file__), 'resources')
 
     def __init__(self, name):
         (_, ext) = os.path.splitext(name)
         self.content_type = self.mime_map.get(ext[1:],
-                'application/octet-stream')
+                                              'application/octet-stream')
         try:
             self.data = open(os.path.join(self.resource_base, name)).read()
         except IOError:
@@ -56,11 +62,13 @@ class DBusRestResourceResponse(DBusRestResponse):
     def render(self, handler):
         handler.send_response(200)
         handler.send_header('Content-Type',
-                self.content_type + '; charset=utf-8')
+                            self.content_type + '; charset=utf-8')
         handler.end_headers()
         handler.wfile.write(self.data)
 
+
 class DBusRestErrorResonse(DBusRestResponse):
+
     def __init__(self, ex):
         self.ex = ex
 
@@ -80,7 +88,7 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def handle_root(self):
         return DBusRestJSONResponse({
             'status': 'ok',
-            'busses': [ {'name': x} for x in busses.keys() ],
+            'busses': [{'name': x} for x in busses.keys()],
         })
 
     def handle_bus(self):
@@ -88,7 +96,7 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         objects.sort()
         return DBusRestJSONResponse({
             'status': 'ok',
-            'objects': [ {'name': x} for x in objects ],
+            'objects': [{'name': x} for x in objects],
         })
 
     def get_object_or_404(self, bus_name, obj_path):
@@ -100,7 +108,7 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def handle_service(self, bus_name):
         data = IntrospectionParser(bus_name, self.bus).introspect()
-        objects = [ { 'path': x } for x in data.iterkeys() ]
+        objects = [{'path': x} for x in data.iterkeys()]
 
         return DBusRestJSONResponse({
             'status': 'ok',
@@ -141,8 +149,7 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         methods = []
         signals = []
         base_uri = ('/bus/' + self.bus_name + '/' + obj.requested_bus_name +
-                obj.object_path + '/' + interface_name);
-
+                    obj.object_path + '/' + interface_name)
 
         def parse_method(node):
             args = []
@@ -237,7 +244,7 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         if not parts:
             return self.handle_object(obj)
-                
+
         interface_name = parts.pop(0)
         if not parts:
             return self.handle_interface(obj, interface_name)
@@ -322,7 +329,7 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         if not parts:
             raise DBusRestException("Not Found", 404)
-                
+
         interface_name = parts.pop(0)
         if not parts:
             raise DBusRestException("Not Found", 404)
