@@ -4,6 +4,7 @@ import dbus
 import BaseHTTPServer
 import SocketServer
 import json
+import socket
 import os
 import sys
 from xml.etree import ElementTree
@@ -345,7 +346,6 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             response = DBusRestErrorResonse(ex)
 
         response.render(self)
-        self.wfile.close()
 
     def do_POST(self):
         length = int(self.headers.getheader('content-length'))
@@ -356,11 +356,25 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             response = DBusRestErrorResonse(ex)
 
         response.render(self)
-        self.wfile.close()
 
 
 class HTTPServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
-    pass
+    def __init__(self, address, handler):
+        bind = True
+        if os.environ.get('LISTEN_PID', None) == str(os.getpid()):
+            bind = False
+        BaseHTTPServer.HTTPServer.__init__(
+            self, address, handler, bind_and_activate=bind)
+        if bind is True:
+            self.server_bind()
+        else:
+            FIRST_SYSTEMD_SOCKET_FD = 3
+            self.socket = socket.fromfd(
+                FIRST_SYSTEMD_SOCKET_FD,
+                socket.AF_INET,
+                socket.SOCK_STREAM)
+
+        self.server_activate()
 
 if __name__ == '__main__':
     server = HTTPServer(('', 3000), DBusRestHandler)
