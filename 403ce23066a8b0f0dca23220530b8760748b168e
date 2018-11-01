@@ -1,0 +1,9 @@
+Code-Review+1: Jeremy Kerr <jk@ozlabs.org>
+Ok-To-Test+1: Jeremy Kerr <jk@ozlabs.org>
+Code-Review+2: Brad Bishop <bradleyb@fuzziesquirrel.com>
+Verified+1: Brad Bishop <bradleyb@fuzziesquirrel.com>
+Submitted-by: Brad Bishop <bradleyb@fuzziesquirrel.com>
+Submitted-at: Thu, 01 Nov 2018 15:30:53 +0000
+Reviewed-on: https://gerrit.openbmc-project.xyz/15068
+Project: openbmc/rest-dbus
+Branch: refs/heads/master
