@@ -184,6 +184,12 @@ class DBusRestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         iface = dbus.Interface(obj, 'org.freedesktop.DBus.Properties')
         try:
             properties = iface.GetAll(interface_name)
+            # change dbus.boolean to actual bool so it doesn't get converted
+            # to an int
+            for k in properties.keys():
+                val = properties[k]
+                if isinstance(val, dbus.Boolean):
+                    properties[k] = bool(val)
         except dbus.DBusException:
             properties = []
 
