@@ -1,17 +1,7 @@
-rest-dbus: web interface to a dbus API
+# rest-dbus
 
-Losely based on https://github.com/joshtronic/python-dbus-rest-server.
-
-Includes code from the following projects:
-
-jQuery
- - http://jquery.com/
- - Released under the MIT license
-
-jsTree plugin for jQuery
- - http://jstree.com/
- - Released under the MIT license
-
-JsRender
- - http://jsviews.com/
- - Released under the MIT license
+rest-dbus was a [dfeet](https://wiki.gnome.org/Apps/DFeet)-like UI over HTTP
+written for OpenBMC.  It is no longer maintained and depends on Python 2, so
+you should probably not use it.  A port to the
+[bmcweb](https://github.com/openbmc/bmcweb) project implemented the same REST
+APIs as rest-dbus, but browser side support remains unimplemented.
